@@ -128,7 +128,3 @@ El contenido que no venía en el reto ni en el manual está marcado como `POR CO
 - [ ] Antes/después de los cuatro perfiles.
 - [ ] Testimonios autorizados. Mientras `autorizado: false`, la tarjeta se muestra como «Espacio para testimonio autorizado», como pide el manual.
 - [ ] Respuestas de las FAQs.
-
-## Uso de IA
-
-El proyecto se construyó con Claude como asistente: análisis del manual y del reto, propuesta de arquitectura, código y pruebas en navegador (Playwright a 375 px y 1440 px, teclado y movimiento reducido). Las decisiones de stack, contenido y piezas interactivas las tomó quien presenta el reto antes de escribir código.
