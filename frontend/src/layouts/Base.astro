@@ -1,0 +1,16 @@
+---
+import { META, headHtml } from './head';
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang={META.lang}>
+  <head>
+    <Fragment set:html={headHtml()} />
+  </head>
+  <body>
+    <slot />
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

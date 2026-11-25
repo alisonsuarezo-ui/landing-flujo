@@ -1,0 +1,257 @@
+---
+/**
+ * Panel administrativo de interesados: /admin/
+ * Todo el contenido dinámico llega de la API real (src/scripts/admin).
+ */
+import Admin from '../../layouts/Admin.astro';
+import { MISIONES, programaApi } from '../../data/content';
+import { ESTADOS } from '../../scripts/admin/estados';
+---
+<Admin title="Panel de interesados · Campuslands AI Academy">
+  <a class="skip-link" href="#admin-main">Saltar al contenido</a>
+
+  <!-- ============ Inicio de sesión ============ -->
+  <section class="admin-login" data-view="login" aria-labelledby="login-title">
+    <div class="halo halo--tr" aria-hidden="true"></div>
+    <div class="halo halo--bl" aria-hidden="true"></div>
+    <div class="admin-login__card card">
+      <img class="admin-login__logo" src="/brand/logo-horizontal-blanco.webp" width="168" height="38" alt="Campuslands AI Academy" />
+      <p class="pill pill--sm">Panel administrativo</p>
+      <h1 class="h2" id="login-title">Control de <em class="hl">misión</em></h1>
+      <p class="hint">Ingresa con tu cuenta de administrador para gestionar a los interesados.</p>
+      <form class="lead-form" data-login-form novalidate>
+        <div class="field" data-field="correo">
+          <label for="login-correo">Correo</label>
+          <input id="login-correo" name="correo" type="email" autocomplete="username" required spellcheck="false" autocapitalize="off" />
+        </div>
+        <div class="field" data-field="password">
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <p class="lead-form__alert" data-login-alert role="alert" hidden></p>
+        <button class="btn btn--primary btn--lg btn--block lead-form__submit" type="submit" data-login-submit>
+          <span class="lead-form__spinner" aria-hidden="true"></span><span data-login-label>Ingresar</span>
+        </button>
+      </form>
+      <a class="admin-login__back" href="/">← Volver a la landing</a>
+    </div>
+  </section>
+
+  <!-- ============ Aplicación ============ -->
+  <div class="admin-app" data-view="app" hidden>
+    <header class="admin-top">
+      <div class="admin-top__bar">
+        <a class="brand" href="/admin/" aria-label="Panel de interesados, inicio">
+          <img src="/brand/logo-horizontal-blanco.webp" width="160" height="36" alt="Campuslands AI Academy" />
+        </a>
+        <p class="pill pill--sm admin-top__tag">Panel</p>
+        <div class="admin-top__user">
+          <span class="admin-top__name" data-admin-name></span>
+          <a class="btn btn--ghost btn--sm" href="/" target="_blank" rel="noopener">Ver landing</a>
+          <button class="btn btn--outline btn--sm" type="button" data-logout>Cerrar sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="admin-main" class="admin-main">
+      <!-- Dashboard -->
+      <section class="admin-section" aria-labelledby="dash-title">
+        <div class="admin-section__head">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1 class="h2" id="dash-title">Seguimiento de <em class="hl">interesados</em></h1>
+          </div>
+          <div class="admin-section__actions">
+            <p class="hint" data-updated aria-live="polite"></p>
+            <button class="btn btn--ghost btn--sm" type="button" data-refresh>Actualizar</button>
+          </div>
+        </div>
+
+        <ul class="kpis" data-kpis aria-label="Indicadores principales">
+          <li class="kpi card kpi--main"><p class="kpi__label">Total de interesados</p><p class="kpi__value" data-kpi="total">—</p><p class="kpi__sub" data-kpi-sub="total"></p></li>
+          <li class="kpi card"><p class="kpi__label">Nuevos</p><p class="kpi__value" data-kpi="nuevos">—</p><p class="kpi__sub">Sin contactar todavía</p></li>
+          <li class="kpi card"><p class="kpi__label">Contactados</p><p class="kpi__value" data-kpi="contactados">—</p><p class="kpi__sub">Primer contacto hecho</p></li>
+          <li class="kpi card"><p class="kpi__label">Interesados</p><p class="kpi__value" data-kpi="interesados">—</p><p class="kpi__sub">Evaluando una misión</p></li>
+          <li class="kpi card"><p class="kpi__label">Inscritos</p><p class="kpi__value" data-kpi="inscritos">—</p><p class="kpi__sub" data-kpi-sub="inscritos"></p></li>
+        </ul>
+
+        <div class="charts">
+          <figure class="chart card">
+            <figcaption><p class="chart__title">Interesados por estado</p><p class="hint">Embudo actual de seguimiento</p></figcaption>
+            <div class="bars bars--h" data-chart="estado" role="list"></div>
+          </figure>
+          <figure class="chart card">
+            <figcaption><p class="chart__title">Interesados por programa</p><p class="hint">Misión elegida en el formulario</p></figcaption>
+            <div class="bars bars--h" data-chart="programa" role="list"></div>
+          </figure>
+          <figure class="chart card chart--wide">
+            <figcaption><p class="chart__title">Registros por día</p><p class="hint">Últimos 14 días · <span data-kpi="semana">0</span> en los últimos 7 días</p></figcaption>
+            <div class="bars bars--v" data-chart="dias" role="list"></div>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Tabla de interesados -->
+      <section class="admin-section" aria-labelledby="leads-title">
+        <div class="admin-section__head">
+          <div>
+            <p class="eyebrow">Interesados</p>
+            <h2 class="h3" id="leads-title">Listado de registros</h2>
+          </div>
+        </div>
+
+        <form class="filters-bar" data-filters role="search" aria-label="Buscar y filtrar interesados" onsubmit="return false">
+          <div class="field filters-bar__search">
+            <label for="f-q">Buscar</label>
+            <input id="f-q" name="q" type="search" placeholder="Nombre, correo o teléfono" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="f-estado">Estado</label>
+            <select id="f-estado" name="estado" class="select">
+              <option value="">Todos</option>
+              {ESTADOS.map((e) => <option value={e.id}>{e.nombre}</option>)}
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-programa">Programa</label>
+            <select id="f-programa" name="programa" class="select">
+              <option value="">Todos</option>
+              {MISIONES.map((m) => <option value={programaApi(m.id)}>{m.nombre}</option>)}
+            </select>
+          </div>
+          <button class="btn btn--ghost btn--sm filters-bar__clear" type="button" data-clear-filters>Limpiar filtros</button>
+        </form>
+
+        <p class="hint" data-table-summary aria-live="polite"></p>
+        <div class="table-wrap card">
+          <table class="leads-table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Contacto</th>
+                <th scope="col">Programa</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Registro</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody data-leads-body></tbody>
+          </table>
+          <p class="table-empty" data-table-empty hidden>No hay interesados que coincidan con la búsqueda.</p>
+        </div>
+        <nav class="pager" aria-label="Paginación" data-pager>
+          <button class="btn btn--ghost btn--sm" type="button" data-page="prev">← Anterior</button>
+          <span class="hint" data-page-info></span>
+          <button class="btn btn--ghost btn--sm" type="button" data-page="next">Siguiente →</button>
+        </nav>
+      </section>
+
+      <!-- Equipo administrador -->
+      <section class="admin-section" aria-labelledby="team-title">
+        <div class="admin-section__head">
+          <div>
+            <p class="eyebrow">Equipo</p>
+            <h2 class="h3" id="team-title">Administradores del panel</h2>
+            <p class="hint">Cada persona entra con su cuenta. El historial muestra quién hizo cada cambio, así cualquiera puede retomar un caso.</p>
+          </div>
+        </div>
+        <div class="team">
+          <div class="card team__list-card">
+            <ul class="team__list" data-team-list aria-live="polite"></ul>
+          </div>
+          <form class="card lead-form team__form" data-team-form novalidate>
+            <p class="detail-box__title">Agregar administrador</p>
+            <div class="field" data-field="nombre">
+              <label for="t-nombre">Nombre</label>
+              <input id="t-nombre" name="nombre" type="text" required maxlength="120" autocomplete="off" />
+              <p class="field__error" data-error-for="nombre"></p>
+            </div>
+            <div class="field" data-field="correo">
+              <label for="t-correo">Correo</label>
+              <input id="t-correo" name="correo" type="email" required maxlength="160" autocomplete="off" spellcheck="false" autocapitalize="off" />
+              <p class="field__error" data-error-for="correo"></p>
+            </div>
+            <div class="field" data-field="password">
+              <label for="t-password">Contraseña temporal <span class="field__opt">(mín. 8)</span></label>
+              <input id="t-password" name="password" type="password" required minlength="8" maxlength="72" autocomplete="new-password" />
+              <p class="field__error" data-error-for="password"></p>
+            </div>
+            <p class="hint">Entrégale la contraseña por un canal privado, nunca en archivos compartidos.</p>
+            <button class="btn btn--outline btn--block" type="submit">Crear cuenta</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- Detalle de un interesado -->
+    <div class="drawer" data-drawer hidden>
+      <div class="drawer__backdrop" data-drawer-close></div>
+      <aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="detail-name" tabindex="-1">
+        <div class="drawer__head">
+          <div>
+            <p class="eyebrow">Interesado <span data-detail-id></span></p>
+            <h2 class="h3" id="detail-name" data-detail-name>—</h2>
+          </div>
+          <button class="btn btn--icon btn--ghost" type="button" data-drawer-close aria-label="Cerrar detalle">✕</button>
+        </div>
+
+        <div class="drawer__body">
+          <p class="lead-form__alert" data-detail-alert role="alert" hidden></p>
+
+          <dl class="detail-grid" data-detail-info></dl>
+          <p class="detail-last" data-detail-last hidden></p>
+
+          <details class="detail-box" data-edit-box>
+            <summary>Editar datos del interesado</summary>
+            <form class="lead-form" data-edit-form novalidate>
+              <div class="field" data-field="nombre"><label for="e-nombre">Nombre completo</label><input id="e-nombre" name="nombre" type="text" required maxlength="120" /><p class="field__error" data-error-for="nombre"></p></div>
+              <div class="field" data-field="correo"><label for="e-correo">Correo</label><input id="e-correo" name="correo" type="email" required maxlength="160" /><p class="field__error" data-error-for="correo"></p></div>
+              <div class="field" data-field="telefono"><label for="e-telefono">Teléfono</label><input id="e-telefono" name="telefono" type="tel" maxlength="30" /><p class="field__error" data-error-for="telefono"></p></div>
+              <div class="field" data-field="programaInteres">
+                <label for="e-programa">Programa</label>
+                <select id="e-programa" name="programaInteres" class="select">
+                  {MISIONES.map((m) => <option value={programaApi(m.id)}>{m.nombre}</option>)}
+                </select>
+                <p class="field__error" data-error-for="programaInteres"></p>
+              </div>
+              <button class="btn btn--outline btn--block" type="submit">Guardar cambios</button>
+            </form>
+          </details>
+
+          <form class="detail-box detail-box--open lead-form" data-status-form novalidate>
+            <p class="detail-box__title">Actualizar estado</p>
+            <div class="field">
+              <label for="s-estado">Nuevo estado</label>
+              <select id="s-estado" name="estado" class="select">
+                {ESTADOS.map((e) => <option value={e.id}>{e.nombre}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for="s-nota">Nota del cambio <span class="field__opt">(opcional)</span></label>
+              <textarea id="s-nota" name="nota" rows="2" maxlength="2000" placeholder="Ej. Se llamó y pidió propuesta para su equipo"></textarea>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit">Actualizar estado</button>
+          </form>
+
+          <form class="detail-box detail-box--open lead-form" data-note-form novalidate>
+            <p class="detail-box__title">Registrar nota</p>
+            <div class="field" data-field="nota">
+              <label for="n-nota">Nota de seguimiento</label>
+              <textarea id="n-nota" name="nota" rows="3" maxlength="2000" required placeholder="¿Qué pasó en el último contacto?"></textarea>
+              <p class="field__error" data-error-for="nota"></p>
+            </div>
+            <button class="btn btn--outline btn--block" type="submit">Agregar nota</button>
+          </form>
+
+          <section class="timeline-wrap" aria-labelledby="hist-title">
+            <p class="detail-box__title" id="hist-title">Historial de seguimiento</p>
+            <ol class="timeline" data-timeline></ol>
+          </section>
+        </div>
+      </aside>
+    </div>
+
+    <div class="toast" data-toast role="status" aria-live="polite" hidden></div>
+    <div class="chart-tip" data-chart-tip role="tooltip" hidden></div>
+  </div>
+</Admin>

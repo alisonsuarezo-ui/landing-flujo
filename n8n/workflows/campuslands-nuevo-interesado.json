@@ -1,0 +1,208 @@
+{
+  "id": "CampusLeadsTg001",
+  "name": "Campuslands · Nuevo interesado → Telegram",
+  "active": false,
+  "versionId": "3f6c2a9e-8b1d-4e7a-9c55-2d0e7f1a4b62",
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "timezone": "America/Bogota"
+  },
+  "tags": [],
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodes": [
+    {
+      "id": "5d8f6a1e-1c0b-4c55-9f4e-0a1b2c3d4e01",
+      "name": "Webhook · nuevo interesado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "b7e0f3c2-6a4d-4c1e-9d2a-5c3a1e0f7b01",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campuslands-nuevo-interesado",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "notes": "Recibe el JSON que envía Spring Boot después de guardar el lead en PostgreSQL."
+    },
+    {
+      "id": "5d8f6a1e-1c0b-4c55-9f4e-0a1b2c3d4e02",
+      "name": "¿Secreto válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1a2b3c4-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.headers['x-webhook-secret'] ?? '' }}",
+              "rightValue": "={{ $env.N8N_WEBHOOK_SECRET ?? '' }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "notes": "Compara el encabezado X-Webhook-Secret con la variable N8N_WEBHOOK_SECRET."
+    },
+    {
+      "id": "5d8f6a1e-1c0b-4c55-9f4e-0a1b2c3d4e03",
+      "name": "Enviar mensaje a Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        540,
+        200
+      ],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.TELEGRAM_API_URL || 'https://api.telegram.org').replace(/\\/+$/, '') }}/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "=🚀 Nuevo interesado registrado\n🆔 Registro #{{ $json.body.id }}\n\n👤 Nombre: {{ $json.body.nombre }}\n📧 Correo: {{ $json.body.correo }}\n📱 Teléfono: {{ $json.body.telefono || 'No registrado' }}\n🎓 Programa: {{ $json.body.programaNombre }}\n🗓️ Fecha de registro: {{ $json.body.fechaRegistroTexto }}\n\n🔎 Seguimiento en el panel: {{ $json.body.panelUrl }}"
+            },
+            {
+              "name": "disable_web_page_preview",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "notes": "Bot API de Telegram. El token y el chat_id salen de variables de entorno: no quedan guardados en el workflow."
+    },
+    {
+      "id": "5d8f6a1e-1c0b-4c55-9f4e-0a1b2c3d4e04",
+      "name": "Responder OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        100
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, telegram: 'enviado', leadId: $('Webhook · nuevo interesado').item.json.body.id, messageId: $json.result ? $json.result.message_id : null }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "5d8f6a1e-1c0b-4c55-9f4e-0a1b2c3d4e05",
+      "name": "Responder error de Telegram",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, telegram: 'error', leadId: $('Webhook · nuevo interesado').item.json.body.id, detalle: ($json.error && $json.error.message) ? $json.error.message : 'Telegram rechazó la petición' }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "notes": "502 = n8n recibió el lead pero Telegram falló (token/chat_id vacíos o incorrectos). El backend lo registra en el historial."
+    },
+    {
+      "id": "5d8f6a1e-1c0b-4c55-9f4e-0a1b2c3d4e06",
+      "name": "Responder 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        540,
+        460
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: 'Secreto del webhook inválido' }) }}",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook · nuevo interesado": {
+      "main": [
+        [
+          {
+            "node": "¿Secreto válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Secreto válido?": {
+      "main": [
+        [
+          {
+            "node": "Enviar mensaje a Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar mensaje a Telegram": {
+      "main": [
+        [
+          {
+            "node": "Responder OK",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error de Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

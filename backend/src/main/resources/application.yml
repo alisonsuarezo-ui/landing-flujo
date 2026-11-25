@@ -1,0 +1,81 @@
+# Configuración de la API de interesados.
+# Todos los valores sensibles llegan por variables de entorno (ver .env.example).
+server:
+  port: ${SERVER_PORT:8080}
+  # Detrás de Nginx: respeta X-Forwarded-* para IP y esquema reales.
+  forward-headers-strategy: framework
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  application:
+    name: leads-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/campuslands_leads}
+    username: ${DB_USER:campuslands}
+    password: ${DB_PASSWORD:campuslands}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # el esquema lo crea Flyway, Hibernate solo lo valida
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: always
+    time-zone: UTC
+  task:
+    execution:
+      thread-name-prefix: notif-
+      pool:
+        core-size: 2
+        max-size: 4
+
+app:
+  # URL pública del sitio (se usa en el mensaje de Telegram para enlazar el panel).
+  public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080}
+  cors:
+    # Orígenes permitidos para el navegador. En Docker todo pasa por Nginx (mismo origen),
+    # así que esto solo importa en desarrollo (astro dev en :4321).
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4321,http://127.0.0.1:4321}
+  security:
+    # Secreto HS256 para firmar los JWT del panel. Mínimo 32 caracteres.
+    jwt-secret: ${JWT_SECRET:}
+    jwt-expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
+    max-login-attempts: 5
+    lock-minutes: 5
+  admin:
+    # Administrador inicial: se crea al arrancar si no existe. La contraseña se guarda con BCrypt.
+    email: ${ADMIN_EMAIL:admin@campuslands.com}
+    name: ${ADMIN_NAME:Administrador AI Academy}
+    password: ${ADMIN_PASSWORD:}
+  n8n:
+    # Webhook de producción del workflow (ver n8n/workflows). Vacío = notificación desactivada.
+    webhook-url: ${N8N_WEBHOOK_URL:}
+    webhook-secret: ${N8N_WEBHOOK_SECRET:}
+    connect-timeout-ms: 3000
+    read-timeout-ms: 15000
+    max-attempts: 3
+    zone-id: ${APP_TIMEZONE:America/Bogota}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+logging:
+  level:
+    co.campuslands: INFO

@@ -1,0 +1,17 @@
+# Secretos
+.env
+*.env.local
+
+# Dependencias y compilados
+node_modules/
+frontend/dist/
+frontend/dist-static/
+frontend/.astro/
+backend/target/
+
+# Sistema / IDE
+.DS_Store
+.idea/
+.vscode/
+*.iml
+*.log

@@ -1,0 +1,12 @@
+---
+/**
+ * Landing de Campuslands AI Academy.
+ * Las secciones se generan en src/sections a partir de src/data/content.ts,
+ * así el mismo marcado sirve para Astro y para el build estático de prueba.
+ */
+import Base from '../layouts/Base.astro';
+import { renderBody } from '../sections';
+---
+<Base>
+  <Fragment set:html={renderBody()} />
+</Base>

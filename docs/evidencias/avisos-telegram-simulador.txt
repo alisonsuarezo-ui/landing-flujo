@@ -1,0 +1,91 @@
+AVISOS GENERADOS POR n8n PARA LOS INTERESADOS FICTICIOS
+======================================================
+Entorno de pruebas SIN acceso a api.telegram.org: n8n envió cada aviso a un SIMULADOR
+de la Bot API de Telegram (misma petición sendMessage, mismo chat_id y texto). Con un
+TELEGRAM_BOT_TOKEN real, este mismo texto llega al chat configurado.
+El token y el chat_id usados aquí eran de prueba (no reales) y no se guardan en ningún archivo.
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #1
+
+👤 Nombre: Mariana Ortiz Vega
+📧 Correo: mariana.ortiz@example.com
+📱 Teléfono: +57 300 000 0101
+🎓 Programa: Booster (8 h · En vivo)
+🗓️ Fecha de registro: 24/11/2026 11:22 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-1
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #2
+
+👤 Nombre: Andrés Felipe Rueda
+📧 Correo: andres.rueda@example.com
+📱 Teléfono: +57 300 000 0102
+🎓 Programa: Liftoff (12 h · En vivo)
+🗓️ Fecha de registro: 24/11/2026 11:22 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-2
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #3
+
+👤 Nombre: Camila Duarte Pinto
+📧 Correo: camila.duarte@example.com
+📱 Teléfono: No registrado
+🎓 Programa: Nebula (Pregrabado · A tu ritmo)
+🗓️ Fecha de registro: 24/11/2026 11:22 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-3
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #4
+
+👤 Nombre: Jorge Iván Castaño
+📧 Correo: jorge.castano@example.com
+📱 Teléfono: +57 300 000 0104
+🎓 Programa: Odyssey (Personalizado · A la medida)
+🗓️ Fecha de registro: 24/11/2026 11:22 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-4
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #5
+
+👤 Nombre: Valeria Montes Ríos
+📧 Correo: valeria.montes@example.com
+📱 Teléfono: +57 300 000 0105
+🎓 Programa: Ignition (4 h · En vivo)
+🗓️ Fecha de registro: 24/11/2026 11:22 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-5
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #6
+
+👤 Nombre: Tomás Herrera Lozano
+📧 Correo: tomas.herrera@example.com
+📱 Teléfono: +57 300 000 0106
+🎓 Programa: Booster (8 h · En vivo)
+🗓️ Fecha de registro: 24/11/2026 11:22 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-6
+
+--- POST /bot<TOKEN>/sendMessage  ·  chat_id = 123456789
+🚀 Nuevo interesado registrado
+🆔 Registro #7
+
+👤 Nombre: Sebastián Prieto Alba
+📧 Correo: sebastian.prieto@example.com
+📱 Teléfono: +57 300 000 0108
+🎓 Programa: Booster (8 h · En vivo)
+🗓️ Fecha de registro: 24/11/2026 11:23 p. m.
+
+🔎 Seguimiento en el panel: http://localhost:8080/admin/#lead-7
+
